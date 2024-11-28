@@ -1,9 +1,9 @@
-import  { useState } from 'react';
+import { useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 
 type RootStackParamList = {
-  home: undefined;
+  Home: undefined;
   settings: undefined;
 };
 
@@ -25,24 +25,9 @@ export default function SettingsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>User Settings</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="First Name"
-        value={firstName}
-        onChangeText={setFirstName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Last Name"
-        value={lastName}
-        onChangeText={setLastName}
-      />
+      <TextInput style={styles.input} placeholder="Username" value={username} onChangeText={setUsername} />
+      <TextInput style={styles.input} placeholder="First Name" value={firstName} onChangeText={setFirstName} />
+      <TextInput style={styles.input} placeholder="Last Name" value={lastName} onChangeText={setLastName} />
       <TextInput
         style={styles.input}
         placeholder="Password"
@@ -65,7 +50,7 @@ export default function SettingsScreen() {
       />
       <View style={styles.buttonsContainer}>
         <Button title="Save" onPress={handleSave} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('home')} />
+        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
       </View>
     </View>
   );

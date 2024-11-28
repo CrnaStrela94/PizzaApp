@@ -1,16 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Modal, TextInput, Image } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import foodDatabase from '../../assets/DB/foodDatabase.json';
+import { RootStackParamList } from './home';
 import { useCart } from '../CartContext';
-
-export type RootStackParamList = {
-  Home: undefined;
-  settings: undefined;
-  order: { pizzaId: number };
-  edit: { pizzaId: number };
-  ShoppingCart: undefined;
-};
 
 type Food = {
   id: number;
@@ -22,16 +14,15 @@ type Food = {
   toppings: { name: string; price: number; quantity: number }[];
 };
 
-const categories = ['Pizzas', 'Hamburgers', 'Salads'];
-
-export default function HomeScreen() {
+export default function ShoppingCartScreen({ route }: { route: any }) {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
-  const { cart, addToCart } = useCart();
-  const [selectedCategory, setSelectedCategory] = useState('Pizzas');
+  const { cart, updateCart } = useCart();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [extraToppings, setExtraToppings] = useState<{ name: string; price: number; quantity: number }[]>([]);
   const [totalPrice, setTotalPrice] = useState(0);
+  const [pickupOption, setPickupOption] = useState<'dineIn' | 'delivery' | null>(null);
+  const [tableNumber, setTableNumber] = useState('');
 
   useEffect(() => {
     if (selectedFood) {
@@ -40,21 +31,34 @@ export default function HomeScreen() {
     }
   }, [extraToppings, selectedFood]);
 
-  const renderFood = ({ item }: { item: Food }) => (
-    <View style={styles.foodContainer}>
+  const renderCartItem = ({ item, index }: { item: Food; index: number }) => (
+    <View style={styles.cartItem}>
+      <Text style={styles.foodIndex}>
+        Food {index + 1} of {cart.length}
+      </Text>
       <Image source={{ uri: item.image }} style={styles.foodImage} />
       <Text style={styles.foodName}>{item.name}</Text>
       <Text style={styles.foodDescription}>{item.description}</Text>
       <Text style={styles.foodPrice}>${item.price.toFixed(2)}</Text>
       <TouchableOpacity
-        style={styles.viewButton}
+        style={styles.editButton}
         onPress={() => {
           setSelectedFood(item);
-          setExtraToppings(item.toppings.map((topping) => ({ ...topping, quantity: 0 })));
+          setExtraToppings(item.toppings);
+          setTotalPrice(item.price + item.toppings.reduce((sum, topping) => sum + topping.price * topping.quantity, 0));
           setModalVisible(true);
         }}
       >
-        <Text style={styles.viewButtonText}>View</Text>
+        <Text style={styles.editButtonText}>Edit</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.removeButton}
+        onPress={() => {
+          const updatedCart = cart.filter((food) => food.id !== item.id);
+          updateCart(updatedCart);
+        }}
+      >
+        <Text style={styles.removeButtonText}>Remove</Text>
       </TouchableOpacity>
     </View>
   );
@@ -69,7 +73,7 @@ export default function HomeScreen() {
     );
   };
 
-  const handleAddToCart = () => {
+  const updateCartItem = () => {
     if (selectedFood) {
       const updatedFood = {
         ...selectedFood,
@@ -77,12 +81,22 @@ export default function HomeScreen() {
           .filter((t) => t.quantity > 0)
           .map((t) => `${t.quantity}x ${t.name}`)
           .join(', ')}`,
-        price: totalPrice,
+        price: selectedFood.price + extraToppings.reduce((sum, topping) => sum + topping.price * topping.quantity, 0),
         toppings: extraToppings.filter((t) => t.quantity > 0),
       };
-      addToCart(updatedFood);
+      const updatedCart = cart.map((food) => (food.id === selectedFood.id ? updatedFood : food));
+      updateCart(updatedCart);
       setModalVisible(false);
     }
+  };
+
+  const handleCheckout = () => {
+    if (pickupOption === 'dineIn' && !tableNumber) {
+      alert('Please enter your table number.');
+      return;
+    }
+    // Handle checkout logic here
+    alert(`Order placed! Pickup option: ${pickupOption}, Table number: ${tableNumber}`);
   };
 
   const getTotalCartPrice = () => {
@@ -91,26 +105,32 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Pizza Shop</Text>
-      <ScrollView horizontal style={styles.menu}>
-        {categories.map((category) => (
-          <TouchableOpacity key={category} onPress={() => setSelectedCategory(category)}>
-            <Text style={[styles.menuItem, selectedCategory === category && styles.selectedMenuItem]}>{category}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-      <Text style={styles.subtitle}>Featured Food</Text>
-      <FlatList
-        data={foodDatabase.filter((food) => food.category === selectedCategory)}
-        renderItem={renderFood}
-        keyExtractor={(item) => item.id.toString()}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-      />
-      <TouchableOpacity style={styles.cartButton} onPress={() => navigation.navigate('ShoppingCart')}>
-        <Text style={styles.cartButtonText}>
-          Go to Cart ({cart.length} items, ${getTotalCartPrice()})
-        </Text>
+      <Text style={styles.title}>Shopping Cart</Text>
+      <FlatList data={cart} renderItem={renderCartItem} keyExtractor={(item) => item.id.toString()} />
+      <Text style={styles.totalPrice}>Total Amount: ${getTotalCartPrice()}</Text>
+      <View style={styles.pickupOptions}>
+        <TouchableOpacity onPress={() => setPickupOption('dineIn')}>
+          <Text style={[styles.pickupOption, pickupOption === 'dineIn' && styles.selectedPickupOption]}>Dine In</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setPickupOption('delivery')}>
+          <Text style={[styles.pickupOption, pickupOption === 'delivery' && styles.selectedPickupOption]}>
+            Delivery
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {pickupOption === 'dineIn' && (
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Table Number"
+          value={tableNumber}
+          onChangeText={setTableNumber}
+        />
+      )}
+      <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+        <Text style={styles.checkoutButtonText}>Checkout</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Home')}>
+        <Text style={styles.continueButtonText}>Continue Shopping</Text>
       </TouchableOpacity>
       <Modal
         animationType="slide"
@@ -122,7 +142,7 @@ export default function HomeScreen() {
       >
         <View style={styles.modalView}>
           <Text style={styles.modalTitle}>Edit {selectedFood?.name}</Text>
-          {selectedFood?.toppings.map((topping) => (
+          {extraToppings.map((topping) => (
             <View key={topping.name} style={styles.toppingContainer}>
               <Text style={styles.toppingItem}>
                 {topping.name} (+${topping.price.toFixed(2)})
@@ -131,9 +151,7 @@ export default function HomeScreen() {
                 <TouchableOpacity onPress={() => handleRemoveTopping(topping)} style={styles.toppingButton}>
                   <Text style={styles.toppingButtonText}>-</Text>
                 </TouchableOpacity>
-                <Text style={styles.toppingQuantity}>
-                  {extraToppings.find((t) => t.name === topping.name)?.quantity || 0}
-                </Text>
+                <Text style={styles.toppingQuantity}>{topping.quantity}</Text>
                 <TouchableOpacity onPress={() => handleAddTopping(topping)} style={styles.toppingButton}>
                   <Text style={styles.toppingButtonText}>+</Text>
                 </TouchableOpacity>
@@ -141,8 +159,8 @@ export default function HomeScreen() {
             </View>
           ))}
           <Text style={styles.totalPrice}>Total Price: ${totalPrice.toFixed(2)}</Text>
-          <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
-            <Text style={styles.addButtonText}>Add to Cart</Text>
+          <TouchableOpacity style={styles.updateButton} onPress={updateCartItem}>
+            <Text style={styles.updateButtonText}>Update Cart</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
             <Text style={styles.cancelButtonText}>Cancel</Text>
@@ -167,44 +185,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#d32f2f',
   },
-  subtitle: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    marginLeft: 10,
-    color: '#d32f2f',
-  },
-  menu: {
-    flexDirection: 'row',
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-  menuItem: {
-    fontSize: 18,
-    marginHorizontal: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 20,
-    backgroundColor: '#ffccbc',
-    color: '#d32f2f',
-  },
-  selectedMenuItem: {
-    backgroundColor: '#d32f2f',
-    color: '#ffffff',
-  },
-  foodContainer: {
+  cartItem: {
     padding: 20,
     marginVertical: 10,
     marginHorizontal: 10,
     backgroundColor: '#ffffff',
     borderRadius: 10,
-    width: 250,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 5,
+  },
+  foodIndex: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#d32f2f',
+    marginBottom: 5,
   },
   foodImage: {
     width: 200,
@@ -230,18 +228,59 @@ const styles = StyleSheet.create({
     color: '#d32f2f',
     marginBottom: 10,
   },
-  viewButton: {
+  editButton: {
     backgroundColor: '#d32f2f',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
+    marginTop: 10,
   },
-  viewButtonText: {
+  editButtonText: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  cartButton: {
+  removeButton: {
+    backgroundColor: '#757575',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  removeButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  pickupOptions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 20,
+  },
+  pickupOption: {
+    fontSize: 18,
+    marginHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: '#ffccbc',
+    color: '#d32f2f',
+  },
+  selectedPickupOption: {
+    backgroundColor: '#d32f2f',
+    color: '#ffffff',
+  },
+  input: {
+    width: '80%',
+    padding: 10,
+    marginVertical: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    backgroundColor: '#fff',
+    alignSelf: 'center',
+  },
+  checkoutButton: {
     backgroundColor: '#d32f2f',
     paddingVertical: 15,
     paddingHorizontal: 20,
@@ -249,7 +288,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  cartButtonText: {
+  checkoutButtonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  continueButton: {
+    backgroundColor: '#757575',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  continueButtonText: {
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
@@ -308,14 +360,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     color: '#d32f2f',
   },
-  addButton: {
+  updateButton: {
     backgroundColor: '#d32f2f',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 20,
     marginTop: 10,
   },
-  addButtonText: {
+  updateButtonText: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
