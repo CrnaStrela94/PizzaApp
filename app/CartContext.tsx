@@ -7,7 +7,7 @@ export type Food = {
   name: string;
   description: string;
   price: number;
-  basePrice?: number; // Mark basePrice as optional
+  basePrice?: number;
   image: string;
   category: string;
   toppings: Topping[];

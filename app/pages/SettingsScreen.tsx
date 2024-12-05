@@ -19,7 +19,6 @@ export default function SettingsScreen() {
   const [email, setEmail] = useState('');
 
   const handleSave = () => {
-    // Handle save logic here
     console.log('Settings saved:', { username, firstName, lastName, password, paymentSettings, email });
   };
 

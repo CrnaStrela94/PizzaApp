@@ -4,10 +4,10 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Button, Image, StyleSheet, Text, TextInput, TouchableOpacity, View, FlatList } from 'react-native';
-import { RootStackParamList } from './home';
+import { useEffect, useState } from 'react';
+import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
+import { RootStackParamList } from './home';
 
 type ReviewPageRouteProp = RouteProp<RootStackParamList, 'Review'>;
 
