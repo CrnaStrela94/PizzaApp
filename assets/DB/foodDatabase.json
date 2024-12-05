@@ -4,6 +4,7 @@
     "name": "Margherita",
     "description": "Classic pizza with tomatoes and mozzarella",
     "price": 8.99,
+    "basePrice": 8.99,
     "image": "https://media.istockphoto.com/id/1278998606/sv/foto/f%C3%A4rsk-hemlagad-pizza-margherita.jpg?s=1024x1024&w=is&k=20&c=WmGyKDNItCUMN08sYV1J1u_9Ac8zeqang_G6NylzRr4=",
     "category": "Pizzas",
     "toppings": [
@@ -17,6 +18,7 @@
     "name": "Pepperoni",
     "description": "Pepperoni, mozzarella, and tomato sauce",
     "price": 9.99,
+    "basePrice": 9.99,
     "image": "https://media.istockphoto.com/id/521403691/sv/foto/hot-homemade-pepperoni-pizza.jpg?s=1024x1024&w=is&k=20&c=bZiNnVVktfsmXvO8UFctRAPKckhnvLcIsbc9gJOw1Ew=",
     "category": "Pizzas",
     "toppings": [
@@ -30,6 +32,7 @@
     "name": "Hawaiian",
     "description": "Ham, pineapple, and mozzarella",
     "price": 10.99,
+    "basePrice": 10.99,
     "image": "https://media.istockphoto.com/id/1671506638/sv/foto/pizza-with-chicken-and-pineapple-hawaiian-pizza.jpg?s=1024x1024&w=is&k=20&c=T0bobzu-LYF_aINFrdK_EzXumpcoeOdheoclnyNpF9A=",
     "category": "Pizzas",
     "toppings": [
@@ -43,6 +46,7 @@
     "name": "Veggie",
     "description": "Bell peppers, onions, mushrooms, and mozzarella",
     "price": 9.49,
+    "basePrice": 9.49,
     "image": "https://media.istockphoto.com/id/184969517/sv/foto/marinara-pizza.jpg?s=1024x1024&w=is&k=20&c=lIzOH0NAqpxV3AQDDX5DTtYAEqpsqwR8yJWVXxSS420=",
     "category": "Pizzas",
     "toppings": [
@@ -56,6 +60,7 @@
     "name": "Cheeseburger",
     "description": "Beef patty, cheddar cheese, lettuce, and tomato",
     "price": 7.99,
+    "basePrice": 7.99,
     "image": "https://media.istockphoto.com/id/1254672762/sv/foto/l%C3%A4ckra-hemlagad-hamburgare-och-franska-torkar.webp?s=1024x1024&w=is&k=20&c=Yp4jwckq2ZB_L6emxlzFSRArPpfqYIjwU_CxbAJXFZY=",
     "category": "Hamburgers",
     "toppings": [
@@ -69,6 +74,7 @@
     "name": "Chicken Burger",
     "description": "Grilled chicken, lettuce, tomato, and mayo",
     "price": 8.49,
+    "basePrice": 8.49,
     "image": "https://media.istockphoto.com/id/1283932840/sv/foto/hemlagad-stekt-kyckling-burgare.jpg?s=1024x1024&w=is&k=20&c=RoI0jVcKlUp1gDv9CoIHOBX-ASokOA28O3ycqPWR1cw=",
     "category": "Hamburgers",
     "toppings": [
@@ -82,6 +88,7 @@
     "name": "Caesar Salad",
     "description": "Romaine lettuce, croutons, and Caesar dressing",
     "price": 6.99,
+    "basePrice": 6.99,
     "image": "https://media.istockphoto.com/id/1761002938/sv/foto/caesar-style-salad-fresh-vegetables-with-grilled-sliced-chicken-breast-on-wooden-table.jpg?s=1024x1024&w=is&k=20&c=HD8QSRMiHa3Ajr7MWvv80WiAEHWOAnsUaj2vOHG44Zk=",
     "category": "Salads",
     "toppings": [
@@ -95,6 +102,7 @@
     "name": "Greek Salad",
     "description": "Tomatoes, cucumbers, olives, and feta cheese",
     "price": 7.49,
+    "basePrice": 7.49,
     "image": "https://media.istockphoto.com/id/1461256163/sv/foto/feta-cheese-salad-on-wooden-table.jpg?s=1024x1024&w=is&k=20&c=_gnoIlbEtza2DRBfa9C_8sE89dzAePy9OBntpsDoHew=",
     "category": "Salads",
     "toppings": [

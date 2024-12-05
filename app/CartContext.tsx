@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
-type Food = {
+export type Topping = { name: string; price: number; quantity: number };
+
+export type Food = {
   id: number;
   name: string;
   description: string;
   price: number;
+  basePrice?: number; // Mark basePrice as optional
   image: string;
   category: string;
-  toppings: { name: string; price: number; quantity: number }[];
+  toppings: Topping[];
 };
 
 type CartContextType = {

@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import React, { useState } from 'react';
+import { FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
-import { useCart } from '../CartContext';
+import { useCart, Food } from '../CartContext';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -10,16 +10,6 @@ export type RootStackParamList = {
   order: { pizzaId: number };
   edit: { pizzaId: number };
   ShoppingCart: undefined;
-};
-
-type Food = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  toppings: { name: string; price: number; quantity: number }[];
 };
 
 const categories = ['Pizzas', 'Hamburgers', 'Salads'];
@@ -30,15 +20,6 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState('Pizzas');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
-  const [extraToppings, setExtraToppings] = useState<{ name: string; price: number; quantity: number }[]>([]);
-  const [totalPrice, setTotalPrice] = useState(0);
-
-  useEffect(() => {
-    if (selectedFood) {
-      const toppingsPrice = extraToppings.reduce((sum, topping) => sum + topping.price * topping.quantity, 0);
-      setTotalPrice(selectedFood.price + toppingsPrice);
-    }
-  }, [extraToppings, selectedFood]);
 
   const renderFood = ({ item }: { item: Food }) => (
     <View style={styles.foodContainer}>
@@ -50,7 +31,6 @@ export default function HomeScreen() {
         style={styles.viewButton}
         onPress={() => {
           setSelectedFood(item);
-          setExtraToppings(item.toppings.map((topping) => ({ ...topping, quantity: 0 })));
           setModalVisible(true);
         }}
       >
@@ -59,28 +39,9 @@ export default function HomeScreen() {
     </View>
   );
 
-  const handleAddTopping = (topping: { name: string; price: number; quantity: number }) => {
-    setExtraToppings(extraToppings.map((t) => (t.name === topping.name ? { ...t, quantity: t.quantity + 1 } : t)));
-  };
-
-  const handleRemoveTopping = (topping: { name: string; price: number; quantity: number }) => {
-    setExtraToppings(
-      extraToppings.map((t) => (t.name === topping.name && t.quantity > 0 ? { ...t, quantity: t.quantity - 1 } : t))
-    );
-  };
-
   const handleAddToCart = () => {
     if (selectedFood) {
-      const updatedFood = {
-        ...selectedFood,
-        description: `${selectedFood.description} with ${extraToppings
-          .filter((t) => t.quantity > 0)
-          .map((t) => `${t.quantity}x ${t.name}`)
-          .join(', ')}`,
-        price: totalPrice,
-        toppings: extraToppings.filter((t) => t.quantity > 0),
-      };
-      addToCart(updatedFood);
+      addToCart(selectedFood);
       setModalVisible(false);
     }
   };
@@ -121,26 +82,10 @@ export default function HomeScreen() {
         }}
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalTitle}>Edit {selectedFood?.name}</Text>
-          {selectedFood?.toppings.map((topping) => (
-            <View key={topping.name} style={styles.toppingContainer}>
-              <Text style={styles.toppingItem}>
-                {topping.name} (+${topping.price.toFixed(2)})
-              </Text>
-              <View style={styles.toppingControls}>
-                <TouchableOpacity onPress={() => handleRemoveTopping(topping)} style={styles.toppingButton}>
-                  <Text style={styles.toppingButtonText}>-</Text>
-                </TouchableOpacity>
-                <Text style={styles.toppingQuantity}>
-                  {extraToppings.find((t) => t.name === topping.name)?.quantity || 0}
-                </Text>
-                <TouchableOpacity onPress={() => handleAddTopping(topping)} style={styles.toppingButton}>
-                  <Text style={styles.toppingButtonText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-          <Text style={styles.totalPrice}>Total Price: ${totalPrice.toFixed(2)}</Text>
+          <Text style={styles.modalTitle}>{selectedFood?.name}</Text>
+          <Image source={{ uri: selectedFood?.image }} style={styles.modalImage} />
+          <Text style={styles.modalDescription}>{selectedFood?.description}</Text>
+          <Text style={styles.modalPrice}>Price: ${selectedFood?.price.toFixed(2)}</Text>
           <TouchableOpacity style={styles.addButton} onPress={handleAddToCart}>
             <Text style={styles.addButtonText}>Add to Cart</Text>
           </TouchableOpacity>
@@ -272,41 +217,23 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: '#d32f2f',
   },
-  toppingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginVertical: 5,
+  modalImage: {
+    width: 200,
+    height: 150,
+    borderRadius: 10,
+    marginBottom: 10,
   },
-  toppingItem: {
-    fontSize: 18,
-    color: '#d32f2f',
+  modalDescription: {
+    fontSize: 16,
+    color: '#757575',
+    marginBottom: 10,
+    textAlign: 'center',
   },
-  toppingControls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  toppingButton: {
-    backgroundColor: '#d32f2f',
-    padding: 5,
-    borderRadius: 5,
-    marginHorizontal: 5,
-  },
-  toppingButtonText: {
-    color: '#ffffff',
+  modalPrice: {
     fontSize: 18,
     fontWeight: 'bold',
-  },
-  toppingQuantity: {
-    fontSize: 18,
     color: '#d32f2f',
-  },
-  totalPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginVertical: 10,
-    color: '#d32f2f',
+    marginBottom: 20,
   },
   addButton: {
     backgroundColor: '#d32f2f',
