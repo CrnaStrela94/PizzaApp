@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
+import React from 'react';
 
 type RootStackParamList = {
   Home: undefined;
@@ -48,10 +49,12 @@ export default function SettingsScreen() {
         onChangeText={setEmail}
         keyboardType="email-address"
       />
-      <View style={styles.buttonsContainer}>
-        <Button title="Save" onPress={handleSave} />
-        <Button title="Go to Home" onPress={() => navigation.navigate('Home')} />
-      </View>
+      <TouchableOpacity style={styles.button} onPress={handleSave}>
+        <Text style={styles.buttonText}>Save</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+        <Text style={styles.buttonText}>Go to Home</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -59,30 +62,37 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#fff3e0',
+    backgroundColor: '#f8f8f8',
+    paddingTop: 20,
+    paddingHorizontal: 10,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    textAlign: 'center',
     marginBottom: 20,
+    color: '#d32f2f',
   },
   input: {
-    width: '100%',
-    padding: 10,
-    marginVertical: 10,
-    borderWidth: 1,
+    height: 50,
     borderColor: '#ccc',
+    borderWidth: 1,
     borderRadius: 5,
+    padding: 10,
+    marginBottom: 20,
     backgroundColor: '#fff',
   },
-  buttonsContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    width: '100%',
-    height: 100,
-    marginTop: 20,
+  button: {
+    backgroundColor: '#d32f2f',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

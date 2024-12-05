@@ -248,7 +248,7 @@ export default function ShoppingCartScreen({ route }: { route: any }) {
       <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
         <Text style={styles.checkoutButtonText}>Checkout</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Home')}>
+      <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('Home', { refresh: true })}>
         <Text style={styles.continueButtonText}>Continue Shopping</Text>
       </TouchableOpacity>
       <Modal

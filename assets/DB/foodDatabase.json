@@ -11,7 +11,8 @@
       { "name": "Extra Cheese", "price": 1.5, "quantity": 0 },
       { "name": "Basil", "price": 0.5, "quantity": 0 },
       { "name": "Olives", "price": 1.0, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 2,
@@ -25,7 +26,8 @@
       { "name": "Extra Pepperoni", "price": 2.0, "quantity": 0 },
       { "name": "Mushrooms", "price": 1.0, "quantity": 0 },
       { "name": "Onions", "price": 0.5, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 3,
@@ -39,7 +41,8 @@
       { "name": "Extra Pineapple", "price": 1.5, "quantity": 0 },
       { "name": "Bacon", "price": 2.0, "quantity": 0 },
       { "name": "Jalapenos", "price": 1.0, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 4,
@@ -53,7 +56,8 @@
       { "name": "Extra Veggies", "price": 1.5, "quantity": 0 },
       { "name": "Spinach", "price": 1.0, "quantity": 0 },
       { "name": "Feta Cheese", "price": 1.5, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 5,
@@ -67,7 +71,8 @@
       { "name": "Bacon", "price": 1.5, "quantity": 0 },
       { "name": "Extra Cheese", "price": 1.0, "quantity": 0 },
       { "name": "Pickles", "price": 0.5, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 6,
@@ -81,7 +86,8 @@
       { "name": "Avocado", "price": 1.5, "quantity": 0 },
       { "name": "Bacon", "price": 1.5, "quantity": 0 },
       { "name": "Cheese", "price": 1.0, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 7,
@@ -95,7 +101,8 @@
       { "name": "Chicken", "price": 2.0, "quantity": 0 },
       { "name": "Bacon", "price": 1.5, "quantity": 0 },
       { "name": "Parmesan", "price": 1.0, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   },
   {
     "id": 8,
@@ -109,6 +116,7 @@
       { "name": "Chicken", "price": 2.0, "quantity": 0 },
       { "name": "Extra Feta", "price": 1.5, "quantity": 0 },
       { "name": "Olives", "price": 1.0, "quantity": 0 }
-    ]
+    ],
+    "reviews": []
   }
 ]

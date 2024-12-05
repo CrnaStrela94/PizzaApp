@@ -1,15 +1,21 @@
-import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
+import * as FileSystem from 'expo-file-system';
 import React, { useState } from 'react';
 import { FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
-import { useCart, Food } from '../CartContext';
+import { Food, useCart } from '../CartContext';
 
 export type RootStackParamList = {
-  Home: undefined;
   settings: undefined;
   order: { pizzaId: number };
   edit: { pizzaId: number };
+  Home: { refresh?: boolean };
+  Review: { foodId: number };
   ShoppingCart: undefined;
+  Settings: undefined;
+  Order: { pizzaId: number };
 };
 
 const categories = ['Pizzas', 'Hamburgers', 'Salads'];
@@ -20,24 +26,70 @@ export default function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState('Pizzas');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [foodData, setFoodData] = useState<Food[]>(foodDatabase);
 
-  const renderFood = ({ item }: { item: Food }) => (
-    <View style={styles.foodContainer}>
-      <Image source={{ uri: item.image }} style={styles.foodImage} />
-      <Text style={styles.foodName}>{item.name}</Text>
-      <Text style={styles.foodDescription}>{item.description}</Text>
-      <Text style={styles.foodPrice}>${item.price.toFixed(2)}</Text>
-      <TouchableOpacity
-        style={styles.viewButton}
-        onPress={() => {
-          setSelectedFood(item);
-          setModalVisible(true);
-        }}
-      >
-        <Text style={styles.viewButtonText}>View</Text>
-      </TouchableOpacity>
-    </View>
+  useFocusEffect(
+    React.useCallback(() => {
+      const loadFoodData = async () => {
+        const fileUri = FileSystem.documentDirectory + 'foodDatabase.json';
+        const newFoodDatabase = await FileSystem.readAsStringAsync(fileUri);
+        const parsedFoodDatabase = JSON.parse(newFoodDatabase);
+
+        const storedReviews = await AsyncStorage.getItem('foodReviews');
+        const reviews = storedReviews ? JSON.parse(storedReviews) : {};
+
+        const updatedFoodData = parsedFoodDatabase.map((food: Food) => {
+          if (reviews[food.id]) {
+            return {
+              ...food,
+              reviews: reviews[food.id],
+            };
+          }
+          return food;
+        });
+
+        setFoodData(updatedFoodData);
+      };
+
+      loadFoodData();
+    }, [])
   );
+
+  const renderFood = ({ item }: { item: Food }) => {
+    const averageRating =
+      item.reviews && item.reviews.length > 0
+        ? item.reviews.reduce((sum, review) => sum + review.rating, 0) / item.reviews.length
+        : 0;
+
+    return (
+      <View style={styles.foodContainer}>
+        <Image source={{ uri: item.image }} style={styles.foodImage} />
+        <Text style={styles.foodName}>{item.name}</Text>
+        <Text style={styles.foodDescription}>{item.description}</Text>
+        <Text style={styles.foodPrice}>${item.price.toFixed(2)}</Text>
+        <View style={styles.ratingContainer}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <FontAwesome key={star} name={star <= averageRating ? 'star' : 'star-o'} size={20} color="#ffd700" />
+          ))}
+        </View>
+        <TouchableOpacity
+          style={styles.viewButton}
+          onPress={() => {
+            setSelectedFood(item);
+            setModalVisible(true);
+          }}
+        >
+          <Text style={styles.viewButtonText}>View</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.reviewButton}
+          onPress={() => navigation.navigate('Review', { foodId: item.id })}
+        >
+          <Text style={styles.reviewButtonText}>Leave a Review</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 
   const handleAddToCart = () => {
     if (selectedFood) {
@@ -62,7 +114,7 @@ export default function HomeScreen() {
       </ScrollView>
       <Text style={styles.subtitle}>Featured Food</Text>
       <FlatList
-        data={foodDatabase.filter((food) => food.category === selectedCategory)}
+        data={foodData.filter((food) => food.category === selectedCategory)}
         renderItem={renderFood}
         keyExtractor={(item) => item.id.toString()}
         horizontal
@@ -186,6 +238,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  reviewButton: {
+    backgroundColor: '#d32f2f',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  reviewButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
   cartButton: {
     backgroundColor: '#d32f2f',
     paddingVertical: 15,
@@ -258,5 +322,10 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginVertical: 5,
   },
 });

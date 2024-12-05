@@ -1,23 +1,44 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import CartProvider from './CartContext';
 import HomeScreen from './pages/home';
+import ReviewPage from './pages/review';
 import SettingsScreen from './pages/SettingsScreen';
 import ShoppingCartScreen from './pages/ShoppingCartScreen';
-import CartProvider from './CartContext';
 
-const Drawer = createDrawerNavigator();
+const Tab = createBottomTabNavigator();
 
 export default function App() {
   return (
     <CartProvider>
-      <NavigationContainer>
-        <Drawer.Navigator initialRouteName="Home">
-          <Drawer.Screen name="Home" component={HomeScreen} />
-          <Drawer.Screen name="settings" component={SettingsScreen} />
-          <Drawer.Screen name="ShoppingCart" component={ShoppingCartScreen} />
-        </Drawer.Navigator>
-      </NavigationContainer>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ color, size }) => {
+            let iconName: string = '';
+
+            if (route.name === 'Home') {
+              iconName = 'home';
+            } else if (route.name === 'ShoppingCart') {
+              iconName = 'cart';
+            } else if (route.name === 'Review') {
+              iconName = 'create';
+            } else if (route.name === 'Settings') {
+              iconName = 'settings';
+            }
+
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+          headerShown: false,
+        })}
+      >
+        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="ShoppingCart" component={ShoppingCartScreen} />
+        <Tab.Screen name="Review" component={ReviewPage} />
+        <Tab.Screen name="Settings" component={SettingsScreen} />
+      </Tab.Navigator>
     </CartProvider>
   );
 }

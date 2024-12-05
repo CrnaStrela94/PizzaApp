@@ -11,6 +11,7 @@ export type Food = {
   image: string;
   category: string;
   toppings: Topping[];
+  reviews?: { text: string; image: string | null; rating: number }[];
 };
 
 type CartContextType = {
