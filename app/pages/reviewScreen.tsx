@@ -5,9 +5,9 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
-import { RootStackParamList } from './home';
+import { RootStackParamList } from './homeScreen';
 
 type ReviewPageRouteProp = RouteProp<RootStackParamList, 'Review'>;
 
@@ -18,28 +18,24 @@ const ReviewPage = () => {
   const [reviewText, setReviewText] = useState('');
   const [image, setImage] = useState<string | null>(null);
   const [rating, setRating] = useState(0);
-  const [reviews, setReviews] = useState<{ text: string; image: string | null; rating: number; foodName: string }[]>(
-    []
-  );
+  const [reviews, setReviews] = useState<
+    { text: string; image: string | null; rating: number; foodName: string; foodId: number }[]
+  >([]);
+  const [selectedFoodId, setSelectedFoodId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadReviews = async () => {
       const storedReviews = await AsyncStorage.getItem('foodReviews');
       const reviews = storedReviews ? JSON.parse(storedReviews) : {};
-      if (foodId) {
-        const food = foodDatabase.find((food) => food.id === foodId);
-        setReviews((reviews[foodId] || []).map((review: any) => ({ ...review, foodName: food?.name || '' })));
-      } else {
-        const allReviews = Object.entries(reviews).flatMap(([id, foodReviews]: [string, any]) => {
-          const food = foodDatabase.find((food) => food.id === parseInt(id));
-          return foodReviews.map((review: any) => ({ ...review, foodName: food?.name || '' }));
-        });
-        setReviews(allReviews);
-      }
+      const allReviews = Object.entries(reviews).flatMap(([id, foodReviews]: [string, any]) => {
+        const food = foodDatabase.find((food) => food.id === parseInt(id));
+        return foodReviews.map((review: any) => ({ ...review, foodName: food?.name || '', foodId: parseInt(id) }));
+      });
+      setReviews(allReviews);
     };
 
     loadReviews();
-  }, [foodId]);
+  }, []);
 
   const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -93,6 +89,17 @@ const ReviewPage = () => {
 
       await AsyncStorage.setItem('foodReviews', JSON.stringify(reviews));
 
+      setReviews((prevReviews) => [
+        ...prevReviews,
+        {
+          text: reviewText,
+          image,
+          rating,
+          foodName: foodDatabase.find((food) => food.id === foodId)?.name || '',
+          foodId,
+        },
+      ]);
+
       alert('Review submitted!');
       navigation.navigate('Home', { refresh: true });
     } catch (error) {
@@ -100,13 +107,22 @@ const ReviewPage = () => {
     }
   };
 
+  const filteredReviews = selectedFoodId ? reviews.filter((review) => review.foodId === selectedFoodId) : reviews;
+
   if (!foodId) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>All Reviews</Text>
-        {reviews.length > 0 ? (
+        <ScrollView horizontal style={styles.foodList}>
+          {foodDatabase.map((food) => (
+            <TouchableOpacity key={food.id} onPress={() => setSelectedFoodId(food.id)}>
+              <Text style={[styles.foodItem, selectedFoodId === food.id && styles.selectedFoodItem]}>{food.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+        {filteredReviews.length > 0 ? (
           <FlatList
-            data={reviews}
+            data={filteredReviews}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
               <View style={styles.reviewContainer}>
@@ -235,6 +251,24 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  foodList: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    paddingHorizontal: 10,
+  },
+  foodItem: {
+    fontSize: 18,
+    marginHorizontal: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: '#ffccbc',
+    color: '#d32f2f',
+  },
+  selectedFoodItem: {
+    backgroundColor: '#d32f2f',
+    color: '#ffffff',
   },
 });
 

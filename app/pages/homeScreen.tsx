@@ -1,7 +1,6 @@
 import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationProp, useFocusEffect, useNavigation } from '@react-navigation/native';
-import * as FileSystem from 'expo-file-system';
 import React, { useState } from 'react';
 import { FlatList, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
@@ -31,14 +30,10 @@ export default function HomeScreen() {
   useFocusEffect(
     React.useCallback(() => {
       const loadFoodData = async () => {
-        const fileUri = FileSystem.documentDirectory + 'foodDatabase.json';
-        const newFoodDatabase = await FileSystem.readAsStringAsync(fileUri);
-        const parsedFoodDatabase = JSON.parse(newFoodDatabase);
-
         const storedReviews = await AsyncStorage.getItem('foodReviews');
         const reviews = storedReviews ? JSON.parse(storedReviews) : {};
 
-        const updatedFoodData = parsedFoodDatabase.map((food: Food) => {
+        const updatedFoodData = foodDatabase.map((food: Food) => {
           if (reviews[food.id]) {
             return {
               ...food,

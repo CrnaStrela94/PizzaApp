@@ -2,8 +2,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as React from 'react';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import CartProvider from './CartContext';
-import HomeScreen from './pages/home';
-import ReviewPage from './pages/review';
+import HomeScreen from './pages/homeScreen';
+import ReviewPage from './pages/reviewScreen';
 import SettingsScreen from './pages/SettingsScreen';
 import ShoppingCartScreen from './pages/ShoppingCartScreen';
 

@@ -11,7 +11,7 @@ import {
   TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { RootStackParamList } from './home';
+import { RootStackParamList } from './homeScreen';
 import { useCart, Food, Topping } from '../CartContext';
 import React from 'react';
 import foodDatabase from '../../assets/DB/foodDatabase.json';
@@ -144,12 +144,17 @@ export default function ShoppingCartScreen({ route }: { route: any }) {
 
   const updateCartItem = () => {
     if (selectedFood) {
+      const originalDescription = selectedFood.description.split(' with ')[0];
+      const extraToppingsDescription = extraToppings
+        .filter((t) => t.quantity > 0)
+        .map((t) => `${t.quantity}x ${t.name}`)
+        .join(', ');
+
       const updatedFood = {
         ...selectedFood,
-        description: `${selectedFood.description} with ${extraToppings
-          .filter((t) => t.quantity > 0)
-          .map((t) => `${t.quantity}x ${t.name}`)
-          .join(', ')}`,
+        description: extraToppingsDescription
+          ? `${originalDescription} with ${extraToppingsDescription}`
+          : originalDescription,
         price:
           (selectedFood.basePrice ?? 0) +
           extraToppings.reduce((sum, topping) => sum + topping.price * topping.quantity, 0),
